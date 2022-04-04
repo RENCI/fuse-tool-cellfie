@@ -1,8 +1,4 @@
-[![AppVeyor](https://img.shields.io/docker/cloud/build/txscience/fuse-tool-template?style=plastic)](https://hub.docker.com/repository/docker/txscience/fuse-tool-template/builds)
-
-# fuse-tool-template
-
-Clone this repo to create a new FUSE-style tool.
+# fuse-tool-cellfie
 
 FUSE stands for "[FAIR](https://www.go-fair.org/)", Usable, Sustainable, and Extensible.
 
@@ -12,12 +8,12 @@ FUSE tools can be run as a stand-alone tool (see `up.sh` below) or as a plugin t
 * tool: analyzes data from a mapper, providing results and a specification that describes the data types and how to display them.
 
 ## prerequisites:
-* python 3.8 or higher
+* python 3.10 or higher
 * Docker 20.10 or higher
 * docker-compose v1.28 a
-* perl 5.16.3 or higher (for testing the install)
-* cpan
 * jq
+* create docker volume for staged CellFie inputs: `docker volume create --opt type=none --opt o=bind --opt device=/path/to/fuse-tool-cellfie/CellFie/input cellfie-input-data`
+
 
 Tips for updating docker-compose on Centos:
 
@@ -30,41 +26,12 @@ sudo curl -L https://github.com/docker/compose/releases/download/${VERSION}/dock
 sudo chmod 755 $DESTINATION
 ```
 
-## use this template:
-
-Note, a tool must specify a pluginType, and for tools we use type 't' (for analysis'Tool')
-* To add a new repository to the RENCI organization, [click here](https://github.com/organizations/RENCI/repositories/new) and select this repo for the template, otherwise new repo will be added to your username.
-* Get your new repo using the 'recursive' tag (see below)
-```
-git clone --recursive http://github.com/RENCI/<your-repo-name>
-```
-* Make sure the test passes (`./up.sh; prove t/test.t` - check t/test.t on how to install the test harness dependencies)
-* Edit this README.md file and replace all occurrences of `fuse-tool-template` with your repo's name
-* Update the source files appropriately:
- - [ ] **docker-compose.yml**: replace `fuse-tool-template` with your repo's name and customize accordingly
- - [ ] **requirements.txt**: add your *version-locked* library requirements to the list
- - [ ] **sample.env**: add any required environmental variables, don't forget to also document them in this readme
- - [ ] **main.py**: 
-   - [ ] Search for all occurrences of `fuse-tool-template` and replace
-   - [ ] Define and add endpoints for your tool
-   - [ ] Create objects and functions under ./fuse to support you endpoints, with unit tests, adding the unit tests to github actions (examples coming soon!)
- - [ ] **write and run tests - look at t/test.t for examples
- - [ ] contact the dockerhub/txscience organization administrator (email:txscience@lists.renci.org) to add a dockerhub repo for your container, if needed
-* remove this section from the README.md
-* checkin your mods: 
-```
-git status # make sure everything looks OK
-git commit -a -m 'Initial customization'
-git push
-```
 
 ## configuration
 
-1. Get this repository:
-`git clone --recursive http://github.com/RENCI/fuse-tool-template
-
-2. Copy `sample.env` to `.env` and edit to suit your provider:
+1. Copy `sample.env` to `.env` and edit to suit your provider:
 * __API_PORT__ pick a unique port to avoid appliances colliding with each other
+* __LOG_LEVEL__ DEBUG, INFO, WARNING, ERROR
 
 ## start
 ```
@@ -80,22 +47,7 @@ Start container prior to validations:
 Simple test from command line
 
 ```
-curl -X 'GET' 'http://localhost:${API_PORT}/openapi.json' -H 'accept: application/json' |jq -r 2> /dev/null
-```
-Install test dependencies:
-```
-cpan App::cpanminus
-# restart shell
-cpanm --installdeps .
-
-```
-Run tests:
-```
-prove
-```
-More specific, detailed test results:
-```
-prove -v t/test.t :: --verbose
+curl -X 'GET' 'http://localhost:${API_PORT}/openapi.json' -H 'accept: application/json' | jq -r 2> /dev/null
 ```
 
 ## stop
