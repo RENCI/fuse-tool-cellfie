@@ -1,14 +1,27 @@
 version: '3.8'
 services:
-  fuse-tool-template:
-    container_name: fuse-tool-template
+  fuse-tool-cellfie:
+    container_name: fuse-tool-cellfie
     build: .
     restart: always
     env_file: .env
     ports:
-        - ${API_PORT}:8000
+      - ${API_PORT}:${API_PORT}
     volumes:
-        - /var/run/docker.sock:/var/run/docker.sock
+      - cellfie-data-container:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
     expose:
       - ${API_PORT}
+    networks:
+      - cellfie_network
 
+volumes:
+  cellfie-data-container:
+    name: cellfie-data
+  cellfie-input-data:
+    external: true
+
+networks:
+  cellfie_network:
+    name: fuse
+    external: true
