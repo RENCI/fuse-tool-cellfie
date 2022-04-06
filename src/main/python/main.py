@@ -114,9 +114,7 @@ async def analyze(submitter_id: str = Query(default=..., description="unique ide
 
         image = "hmasson/cellfie-standalone-app:v2"
 
-        volumes = {}
-        found_input_volume = list(filter(lambda x: x.name == "cellfie-input-data", client.volumes.list()))
-        if len(found_input_volume) == 0 and os.environ.get("CELLFIE_INPUT_PATH") is not None:
+        if os.environ.get("CELLFIE_INPUT_PATH") is not None:
             volumes = {
                 'cellfie-data': {'bind': '/data', 'mode': 'rw'},
                 f"{os.getenv('CELLFIE_INPUT_PATH')}": {'bind': '/input', 'mode': 'rw'},
