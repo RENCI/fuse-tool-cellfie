@@ -113,10 +113,20 @@ async def analyze(submitter_id: str = Query(default=..., description="unique ide
             await out_file.write(content)
 
         image = "hmasson/cellfie-standalone-app:v2"
-        volumes = {
-            'cellfie-data': {'bind': '/data', 'mode': 'rw'},
-            'cellfie-input-data': {'bind': '/input', 'mode': 'rw'},
-        }
+
+        volumes = {}
+        found_input_volume = list(filter(lambda x: x.name == "cellfie-input-data", client.volumes.list()))
+        if len(found_input_volume) == 0 and os.environ.get("CELLFIE_INPUT_PATH") is not None:
+            volumes = {
+                'cellfie-data': {'bind': '/data', 'mode': 'rw'},
+                f"{os.getenv('CELLFIE_INPUT_PATH')}": {'bind': '/input', 'mode': 'rw'},
+            }
+        else:
+            volumes = {
+                'cellfie-data': {'bind': '/data', 'mode': 'rw'},
+                'cellfie-input-data': {'bind': '/input', 'mode': 'rw'},
+            }
+        logger.info(f"{volumes}")
         command = f"/data/{task_id}/geneBySampleMatrix.csv {parameters.SampleNumber} {parameters.Ref} {parameters.ThreshType} {parameters.PercentileOrValue} {global_value} {parameters.LocalThresholdType} {local_values} /data/{task_id}"
         try:
             cellfie_container_logs = client.containers.run(image, volumes=volumes, name=task_id, working_dir="/input", privileged=True, remove=True, command=command, detach=False)
