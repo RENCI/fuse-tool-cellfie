@@ -40,7 +40,20 @@ LOGGING = {
 dictConfig(LOGGING)
 logger = logging.getLogger("fuse-tool-cellfie")
 
-app = FastAPI()
+g_api_version = "0.0.1"
+
+app = FastAPI(openapi_url=f"/api/{g_api_version}/openapi.json",
+              title="CellFie Tool",
+              version=g_api_version,
+              terms_of_service="https://github.com/RENCI/fuse-agent/doc/terms.pdf",
+              contact={
+                  "url": "http://txscience.renci.org/contact/",
+              },
+              license_info={
+                  "name": "MIT License",
+                  "url": "https://github.com/RENCI/fuse-tool-cellfie/blob/main/LICENSE"
+              }
+              )
 
 client = docker.from_env()
 
