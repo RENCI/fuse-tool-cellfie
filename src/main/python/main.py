@@ -84,13 +84,10 @@ app.add_middleware(
 # curl -X 'GET'    'http://localhost:8083/openapi.json' -H 'accept: application/json' 2> /dev/null |python -m json.tool |jq '.paths."/submit".post.parameters[].name' 
 
 
-def get_results(task_path: str, file_name: str):
-    results_file = os.path.join(task_path, file_name)
-    logger.info(f"reading: {results_file}")
-    if not os.path.exists(results_file):
-        raise HTTPException(status_code=404, detail="Not found")
+def get_results(results_file: str):
     results_data = []
     results_feature_count = 0
+    logger.info(f"reading: {results_file}")
     with open(results_file, 'r') as csvfile:
         data = csvfile.readlines()
         for line in data:
@@ -154,15 +151,27 @@ async def analyze(submitter_id: str = Query(default=..., description="unique ide
             logger.info(cellfie_container_logs_decoded)
         except ContainerError as err:
             logger.exception(err)
+            raise HTTPException(status_code=404, detail="problem running the hmasson/cellfie-standalone-app:v2 image")
 
         end_time = datetime.now()
         duration = end_time - start_time
         logger.debug(msg=f"run duration: {divmod(duration.seconds, 60)}")
 
-        (detail_scoring_dim, detail_scoring_data) = get_results(task_path=task_path, file_name="detailScoring.csv")
-        (score_binary_dim, score_binary_data) = get_results(task_path=task_path, file_name="score_binary.csv")
-        (score_dim, score_data) = get_results(task_path=task_path, file_name="score.csv")
-        (task_info_dim, task_info_data) = get_results(task_path=task_path, file_name="taskInfo.csv")
+        detail_scoring_results_file = os.path.join(task_path, "detailScoring.csv")
+        assert os.path.exists(detail_scoring_results_file)
+        (detail_scoring_dim, detail_scoring_data) = get_results(detail_scoring_results_file)
+
+        score_binary_results_file = os.path.join(task_path, "score_binary.csv")
+        assert os.path.exists(score_binary_results_file)
+        (score_binary_dim, score_binary_data) = get_results(score_binary_results_file)
+
+        score_results_file = os.path.join(task_path, "score.csv")
+        assert os.path.exists(score_results_file)
+        (score_dim, score_data) = get_results(score_results_file)
+
+        task_info_file = os.path.join(task_path, "taskInfo.csv")
+        assert os.path.exists(task_info_file)
+        (task_info_dim, task_info_data) = get_results(task_info_file)
 
         return_object = {"submitter_id": submitter_id, "start_time": start_time, "end_time": end_time, "results": [
             {
