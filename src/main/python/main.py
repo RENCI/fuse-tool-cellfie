@@ -180,7 +180,7 @@ async def analyze(submitter_id: str = Query(default=..., description="unique ide
                 "data": score_data
             },
             {
-                "name": "Detail Scoring Table",
+                "name": "Task Info Table",
                 "results_type": "CellFIE",
                 "spec": "",
                 "dimension": task_info_dim,
