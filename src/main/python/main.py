@@ -127,6 +127,13 @@ async def analyze(submitter_id: str = Query(default=..., description="unique ide
             content = await gene_expression_data.read()
             await out_file.write(content)
 
+        with open(file_path) as f:
+            firstline = f.readline().rstrip()
+            # assumption is that the first column is a target
+            number_of_samples = len(firstline.split(",")) - 1
+
+        logger.info(f"number_of_samples: {number_of_samples}")
+
         image = "hmasson/cellfie-standalone-app:v2"
 
         if os.environ.get("CELLFIE_INPUT_PATH") is not None:
@@ -140,7 +147,7 @@ async def analyze(submitter_id: str = Query(default=..., description="unique ide
                 'cellfie-input-data': {'bind': '/input', 'mode': 'rw'},
             }
         logger.info(f"{volumes}")
-        command = f"/data/{task_id}/geneBySampleMatrix.csv {parameters.SampleNumber} {parameters.Ref} {parameters.ThreshType} {parameters.PercentileOrValue} {global_value} {parameters.LocalThresholdType} {local_values} /data/{task_id}"
+        command = f"/data/{task_id}/geneBySampleMatrix.csv {number_of_samples} {parameters.Ref} {parameters.ThreshType} {parameters.PercentileOrValue} {global_value} {parameters.LocalThresholdType} {local_values} /data/{task_id}"
         try:
             cellfie_container_logs = client.containers.run(image, volumes=volumes, name=task_id, working_dir="/input", privileged=True, remove=True, command=command, detach=False)
             cellfie_container_logs_decoded = cellfie_container_logs.decode("utf8")
