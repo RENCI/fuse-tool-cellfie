@@ -18,10 +18,30 @@
     "data_type": "class_dataset_expression",
     "file_types": ["filetype_dataset_expression"]
   },
-  "outputResultsType": {
-      "data_type":"class_results_PCATable",
+  "outputResultsType": [
+    {
+      "data_type":"class_results_CellFieDetailScoringTable",
+      "file_type":"filetype_results_CellFieDetailScoringTable",
+      "mime_type": "application/json",
+      "file_extension": "json"
+    },
+    {
+      "data_type":"class_results_CellFieScoreBinaryTable",
+      "file_type":"filetype_results_CellFieScoreBinaryTable",
+      "mime_type": "application/json",
+      "file_extension": "json"
+    },
+    {
+      "data_type":"class_results_CellFieDetailScoringTable",
       "file_type":"filetype_results_PCATable",
       "mime_type": "application/json",
       "file_extension": "json"
-  }
+    },
+    {
+      "data_type":"class_results_CellFieTaskInfoTable",
+      "file_type":"filetype_results_CellFieTaskInfoTable",
+      "mime_type": "application/json",
+      "file_extension": "json"
+    }
+  ]
 }
