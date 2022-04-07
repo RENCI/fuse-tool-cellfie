@@ -1,6 +1,8 @@
 import datetime
+import json
 import logging
 import os
+import pathlib
 import shutil
 import traceback
 import uuid
@@ -180,3 +182,33 @@ async def analyze(submitter_id: str = Query(default=..., description="unique ide
     except Exception as e:
         raise HTTPException(status_code=404,
                             detail="! Exception {0} occurred while running submit, message=[{1}] \n! traceback=\n{2}\n".format(type(e), e, traceback.format_exc()))
+
+
+@app.get("/service-info", summary="Retrieve information about this service")
+async def service_info():
+    '''
+    Returns information similar to DRS service format
+
+    Extends the v1.0.0 GA4GH Service Info specification as the standardized format for GA4GH web services to self-describe.
+
+    According to the service-info type registry maintained by the Technical Alignment Sub Committee (TASC), a DRS service MUST have:
+    - a type.group value of org.ga4gh
+    - a type.artifact value of drs
+
+    e.g.
+    ```
+    {
+      "id": "com.example.drs",
+      "description": "Serves data according to DRS specification",
+      ...
+      "type": {
+        "group": "org.ga4gh",
+        "artifact": "drs"
+      }
+    ...
+    }
+    ```
+    '''
+    service_info_path = pathlib.Path(__file__).parent.parent / "resources" / "service_info.json"
+    with open(service_info_path) as f:
+        return json.load(f)
