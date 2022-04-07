@@ -11,8 +11,10 @@ FUSE tools can be run as a stand-alone tool (see `up.sh` below) or as a plugin t
 * python 3.10 or higher
 * Docker 20.10 or higher
 * docker-compose v1.28 a
-* jq
+* jq 
+* Create docker network bridge: `docker network create -d bridge fuse`
 * create docker volume for staged CellFie inputs: `docker volume create --opt type=none --opt o=bind --opt device=/path/to/fuse-tool-cellfie/CellFie/input cellfie-input-data`
+    * Troubleshooting: The docker create command will not fail even if the `device path` is non-existent. To create the volume properly, delete the incorrectly created docker volume and run the command again. 
 
 
 Tips for updating docker-compose on Centos:
