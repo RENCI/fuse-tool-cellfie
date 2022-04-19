@@ -11,11 +11,12 @@ from logging.config import dictConfig
 
 import aiofiles
 import docker
+import requests
 from docker.errors import ContainerError
-from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, Query
+from fastapi import FastAPI, File, UploadFile, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from fuse.models.Objects import Parameters
+from fuse.models.Objects import ToolParameters
 
 LOGGING = {
     'version': 1,
@@ -100,15 +101,14 @@ def get_results(results_file: str):
 
 
 @app.post("/submit", description="Submit an analysis")
-async def analyze(submitter_id: str = Query(default=..., description="unique identifier for the submitter (e.g., email)"),
-                  gene_expression_data: UploadFile = File(default=None, description="Gene Expression Data (csv)"),
-                  parameters: Parameters = Depends(Parameters.as_form)):
-    logger.debug(msg=f"submitter_id: {submitter_id}")
+async def analyze(parameters: ToolParameters = Depends(ToolParameters.as_form),
+                  expression_file: UploadFile = File(default=None, description="Gene Expression Data (csv)")):
+    logger.debug(msg=f"parameters: {parameters}")
     try:
         start_time = datetime.now()
 
-        global_value = parameters.Percentile if parameters.PercentileOrValue == "percentile" else parameters.Value
-        local_values = f"{parameters.PercentileLow} {parameters.PercentileHigh}" if parameters.PercentileOrValue == "percentile" else f"{parameters.ValueLow} {parameters.ValueHigh}"
+        global_value = parameters.percentile if parameters.percentile_or_value == "percentile" else parameters.value
+        local_values = f"{parameters.percentile_low} {parameters.percentile_high}" if parameters.percentile_or_value == "percentile" else f"{parameters.value_low} {parameters.value_high} "
 
         task_id = str(uuid.uuid4())[:8]
         task_path = os.path.abspath(f"/app/data/{task_id}")
@@ -120,9 +120,15 @@ async def analyze(submitter_id: str = Query(default=..., description="unique ide
         f.close()
 
         file_path = os.path.join(task_path, "geneBySampleMatrix.csv")
-        async with aiofiles.open(file_path, 'wb') as out_file:
-            content = await gene_expression_data.read()
-            await out_file.write(content)
+
+        match (expression_file, parameters.expression_url):
+            case (None, url):
+                response = requests.get(url)
+                open(file_path, 'wb').write(response.content)
+            case (file, None):
+                async with aiofiles.open(file_path, 'wb') as out_file:
+                    content = await expression_file.read()
+                    await out_file.write(content)
 
         with open(file_path) as f:
             firstline = f.readline().rstrip()
@@ -143,8 +149,9 @@ async def analyze(submitter_id: str = Query(default=..., description="unique ide
                 'cellfie-data': {'bind': '/data', 'mode': 'rw'},
                 'cellfie-input-data': {'bind': '/input', 'mode': 'rw'},
             }
-        logger.info(f"{volumes}")
-        command = f"/data/{task_id}/geneBySampleMatrix.csv {number_of_samples} {parameters.Ref} {parameters.ThreshType} {parameters.PercentileOrValue} {global_value} {parameters.LocalThresholdType} {local_values} /data/{task_id}"
+        logger.info(f"volumes: {volumes}")
+        command = f"/data/{task_id}/geneBySampleMatrix.csv {number_of_samples} {parameters.reference_model} {parameters.threshold_type} {parameters.percentile_or_value} {global_value} {parameters.local_threshold_type} {local_values} /data/{task_id}"
+        logger.info(f"command: {command}")
         try:
             cellfie_container_logs = client.containers.run(image, volumes=volumes, name=task_id, working_dir="/input", privileged=True, remove=True, command=command, detach=False)
             cellfie_container_logs_decoded = cellfie_container_logs.decode("utf8")
@@ -173,7 +180,7 @@ async def analyze(submitter_id: str = Query(default=..., description="unique ide
         assert os.path.exists(task_info_file)
         (task_info_dim, task_info_data) = get_results(task_info_file)
 
-        return_object = {"submitter_id": submitter_id, "start_time": start_time, "end_time": end_time, "results": [
+        return_object = {"submitter_id": parameters.submitter_id, "start_time": start_time, "end_time": end_time, "results": [
             {
                 "name": "Detail Scoring",
                 "results_type": "CellFIE",
@@ -209,13 +216,14 @@ async def analyze(submitter_id: str = Query(default=..., description="unique ide
         return return_object
 
     except Exception as e:
+        logger.exception(e)
         raise HTTPException(status_code=404,
                             detail="! Exception {0} occurred while running submit, message=[{1}] \n! traceback=\n{2}\n".format(type(e), e, traceback.format_exc()))
 
 
 @app.get("/service-info", summary="Retrieve information about this service")
 async def service_info():
-    '''
+    """
     Returns information similar to DRS service format
 
     Extends the v1.0.0 GA4GH Service Info specification as the standardized format for GA4GH web services to self-describe.
@@ -237,7 +245,7 @@ async def service_info():
     ...
     }
     ```
-    '''
+    """
     service_info_path = pathlib.Path(__file__).parent.parent / "resources" / "service_info.json"
     with open(service_info_path) as f:
         return json.load(f)
