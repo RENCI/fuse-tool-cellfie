@@ -11,10 +11,12 @@ FUSE tools can be run as a stand-alone tool (see `up.sh` below) or as a plugin t
 * python 3.10 or higher
 * Docker 20.10 or higher
 * docker-compose v1.28 a
-* jq
-* create docker volume for staged CellFie inputs: `docker volume create --opt type=none --opt o=bind --opt device=/path/to/fuse-tool-cellfie/CellFie/input cellfie-input-data`
-
-
+* jq 
+* Create docker network bridge: `docker network create -d bridge fuse` 
+* Create docker volume for staged CellFie inputs: `docker volume create --opt type=none --opt o=bind --opt device=/path/to/fuse-tool-cellfie/CellFie/input cellfie-input-data`. For example, `docker volume create --opt type=none --opt o=bind --opt device=/Users/john-doe/ImmCellFIE/fuse-tool-cellfie/CellFie/input cellfie-input-data`
+    * Information on troubleshooting docker volume creation [here](https://github.com/RENCI/pdspi-fhir-example/blob/master/doc/Docker.md)
+    * Check if docker volume has mounted correctly: `docker run --rm -i -v=cellfie-input-data:/tmp/myvolume busybox find /tmp/myvolume -type f -maxdepth 4`
+      
 Tips for updating docker-compose on Centos:
 
 ```
