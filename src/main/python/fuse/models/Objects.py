@@ -1,9 +1,9 @@
 import inspect
 from enum import Enum
-from typing import Type, List
+from typing import Type, List, Optional
 
 from fastapi import Form
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field, AnyHttpUrl
 
 
 def as_form(cls: Type[BaseModel]):
@@ -39,17 +39,26 @@ class ReferenceModel(str, Enum):
 
 
 @as_form
-class Parameters(BaseModel):
-    Ref: ReferenceModel = ReferenceModel.MT_recon_2_2_entrez
-    ThreshType: str = "local"
-    PercentileOrValue: str = "value"
-    Percentile: int = 25
-    Value: int = 5
-    LocalThresholdType: str = "minmaxmean"
-    PercentileLow: int = 25
-    PercentileHigh: int = 75
-    ValueLow: int = 5
-    ValueHigh: int = 5
+class ToolParameters(BaseModel):
+    submitter_id: EmailStr = Field(..., title="email", description="unique submitter id (email)")
+    number_of_components: Optional[int] = 3
+    reference_model: Optional[ReferenceModel] = ReferenceModel.MT_recon_2_2_entrez
+    threshold_type: Optional[str] = "local"
+    percentile_or_value: Optional[str] = "value"
+    percentile: Optional[int] = 25
+    value: Optional[int] = 5
+    local_threshold_type: Optional[str] = "minmaxmean"
+    percentile_low: Optional[int] = 25
+    percentile_high: Optional[int] = 75
+    value_low: Optional[int] = 5
+    value_high: Optional[int] = 5
+    dataset: str = Field(...)
+    description: Optional[str] = Field(None, title="Description", description="detailed description of the requested analysis being performed (optional)")
+    expression_url: Optional[AnyHttpUrl] = Field(None, title="Gene expression URL", description="Optionally grab expression from an URL instead of uploading a file")
+    properties_url: Optional[AnyHttpUrl] = Field(None, title="Properties URL", description="Optionally grab properties from an URL instead of uploading a file")
+    archive_url: Optional[AnyHttpUrl] = Field(None, title="Archive URL", description="Optionally grab all the files from an URL to an archive instead of uploading file(s)")
+    results_provider_service_id: Optional[str] = Field(None, title="Data Provider for Results",
+                                                       description="If not set, the system default will be provided. e.g., 'fuse-provider-upload'")
 
 
 class Contents(BaseModel):
