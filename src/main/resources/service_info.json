@@ -14,10 +14,12 @@
   "version": "1.0.0",
   "_comment": "-------End of GA4GH requirements----- (ignore this line)",
   "title": "fuse-tool-cellfie",
-  "inputDatasetType": {
-    "data_type": "class_dataset_expression",
-    "file_types": ["filetype_dataset_expression"]
-  },
+  "inputDatasetType": [
+    {
+      "data_type": "class_dataset_expression",
+      "file_type": "filetype_dataset_expression"
+    }
+  ],
   "outputResultsType": [
     {
       "data_type":"class_results_CellFieDetailScoringTable",
