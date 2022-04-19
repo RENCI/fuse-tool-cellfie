@@ -127,7 +127,7 @@ async def analyze(parameters: ToolParameters = Depends(ToolParameters.as_form),
                 open(file_path, 'wb').write(response.content)
             case (file, None):
                 async with aiofiles.open(file_path, 'wb') as out_file:
-                    content = await expression_file.read()
+                    content = await file.read()
                     await out_file.write(content)
 
         with open(file_path) as f:
