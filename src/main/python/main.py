@@ -165,19 +165,18 @@ async def analyze(parameters: ToolParameters = Depends(ToolParameters.as_form),
         logger.debug(msg=f"run duration: {divmod(duration.seconds, 60)}")
 
         detail_scoring_results_file = os.path.join(task_path, "detailScoring.csv")
-        assert os.path.exists(detail_scoring_results_file)
-        (detail_scoring_dim, detail_scoring_data) = get_results(detail_scoring_results_file)
-
         score_binary_results_file = os.path.join(task_path, "score_binary.csv")
-        assert os.path.exists(score_binary_results_file)
-        (score_binary_dim, score_binary_data) = get_results(score_binary_results_file)
-
         score_results_file = os.path.join(task_path, "score.csv")
-        assert os.path.exists(score_results_file)
-        (score_dim, score_data) = get_results(score_results_file)
-
         task_info_file = os.path.join(task_path, "taskInfo.csv")
-        assert os.path.exists(task_info_file)
+
+        expected_output_files = [detail_scoring_results_file, score_binary_results_file, score_results_file, task_info_file]
+        for file in expected_output_files:
+            if not os.path.exists(file):
+                raise Exception(f"Expected output file does not exist: {file}")
+
+        (detail_scoring_dim, detail_scoring_data) = get_results(detail_scoring_results_file)
+        (score_binary_dim, score_binary_data) = get_results(score_binary_results_file)
+        (score_dim, score_data) = get_results(score_results_file)
         (task_info_dim, task_info_data) = get_results(task_info_file)
 
         return_object = {"submitter_id": parameters.submitter_id, "start_time": start_time, "end_time": end_time, "results": [
