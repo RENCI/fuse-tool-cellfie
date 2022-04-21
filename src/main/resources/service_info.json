@@ -34,8 +34,8 @@
       "file_extension": "json"
     },
     {
-      "data_type":"class_results_CellFieDetailScoringTable",
-      "file_type":"filetype_results_PCATable",
+      "data_type":"class_results_CellFieScoreTable",
+      "file_type":"filetype_results_CellFieScoreTable",
       "mime_type": "application/json",
       "file_extension": "json"
     },
