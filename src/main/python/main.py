@@ -181,29 +181,29 @@ async def analyze(parameters: ToolParameters = Depends(ToolParameters.as_form),
 
         return_object = {"submitter_id": parameters.submitter_id, "start_time": start_time, "end_time": end_time, "results": [
             {
-                "name": "Detail Scoring",
-                "results_type": "CellFIE",
+                "name": "detail_scoring",
+                "results_type": "filetype_results_CellFieDetailScoringTable",
                 "spec": "",
                 "dimension": detail_scoring_dim,
                 "data": detail_scoring_data
             },
             {
-                "name": "Score Binary",
-                "results_type": "CellFIE",
+                "name": "score_binary",
+                "results_type": "filetype_results_CellFieScoreBinaryTable",
                 "spec": "",
                 "dimension": score_binary_dim,
                 "data": score_binary_data
             },
             {
-                "name": "Score",
-                "results_type": "CellFIE",
+                "name": "score",
+                "results_type": "filetype_results_CellFieScoreTable",
                 "spec": "",
                 "dimension": score_dim,
                 "data": score_data
             },
             {
-                "name": "Task Info Table",
-                "results_type": "CellFIE",
+                "name": "task_info",
+                "results_type": "filetype_results_CellFieTaskInfoTable",
                 "spec": "",
                 "dimension": task_info_dim,
                 "data": task_info_data
