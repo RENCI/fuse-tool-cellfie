@@ -40,6 +40,7 @@ class ReferenceModel(str, Enum):
 
 @as_form
 class ToolParameters(BaseModel):
+    service_id: str
     submitter_id: EmailStr = Field(..., title="email", description="unique submitter id (email)")
     number_of_components: Optional[int] = 3
     reference_model: Optional[ReferenceModel] = ReferenceModel.MT_recon_2_2_entrez
