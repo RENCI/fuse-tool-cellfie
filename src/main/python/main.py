@@ -153,7 +153,8 @@ async def analyze(parameters: ToolParameters = Depends(ToolParameters.as_form),
         command = f"/data/{task_id}/geneBySampleMatrix.csv {number_of_samples} {parameters.reference_model} {parameters.threshold_type} {parameters.percentile_or_value} {global_value} {parameters.local_threshold_type} {local_values} /data/{task_id}"
         logger.info(f"command: {command}")
         try:
-            cellfie_container_logs = client.containers.run(image, volumes=volumes, name=task_id, working_dir="/input", privileged=True, remove=True, command=command, detach=False)
+            cellfie_container_logs = client.containers.run(image, volumes=volumes, name=task_id, working_dir="/input", privileged=True, remove=True, command=command, detach=False,
+                                                           mem_limit="10g")
             cellfie_container_logs_decoded = cellfie_container_logs.decode("utf8")
             logger.info(cellfie_container_logs_decoded)
         except ContainerError as err:
