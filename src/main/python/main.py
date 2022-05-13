@@ -16,7 +16,7 @@ from docker.errors import ContainerError
 from fastapi import FastAPI, File, UploadFile, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from fuse.models.Objects import ToolParameters
+from fuse_utilities.main import ToolParameters
 
 LOGGING = {
     'version': 1,
