@@ -154,7 +154,7 @@ async def analyze(parameters: ToolParameters = Depends(ToolParameters.as_form),
         logger.info(f"command: {command}")
         try:
             cellfie_container_logs = client.containers.run(image, volumes=volumes, name=task_id, working_dir="/input", privileged=True, remove=True, command=command, detach=False,
-                                                           mem_limit="10g")
+                                                           mem_limit="10g", stdout=True, stderr=True)
             cellfie_container_logs_decoded = cellfie_container_logs.decode("utf8")
             logger.info(cellfie_container_logs_decoded)
         except ContainerError as err:
