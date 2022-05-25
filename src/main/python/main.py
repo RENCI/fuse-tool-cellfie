@@ -137,7 +137,7 @@ async def analyze(parameters: ToolParameters = Depends(ToolParameters.as_form),
 
         logger.info(f"number_of_samples: {number_of_samples}")
 
-        image = "hmasson/cellfie-standalone-app:v2"
+        image = "hmasson/cellfie-standalone-app:v4"
 
         if os.environ.get("CELLFIE_INPUT_PATH") is not None:
             volumes = {
