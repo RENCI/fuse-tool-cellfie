@@ -5,7 +5,6 @@ EXPOSE 8087
 COPY ./requirements.txt /app/requirements.txt
 
 RUN pip install -r /app/requirements.txt
-RUN pip install -i https://test.pypi.org/simple/ fuse-cdm==1.5.0
 
 RUN apt-get update
 RUN apt-get -y install apt-transport-https ca-certificates curl gnupg2 software-properties-common
