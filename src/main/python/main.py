@@ -107,6 +107,11 @@ async def analyze(parameters: ToolParameters = Depends(ToolParameters.as_form),
     try:
         start_time = datetime.now()
 
+        volumes = client.volumes.list()
+        volume_names = list(map(lambda x: x.name, volumes))
+        if "cellfie-input-data" not in volume_names:
+            raise Exception("The cellfie-input-data volume does not exist")
+
         global_value = parameters.percentile if parameters.percentile_or_value == "percentile" else parameters.value
         local_values = f"{parameters.percentile_low} {parameters.percentile_high}" if parameters.percentile_or_value == "percentile" else f"{parameters.value_low} {parameters.value_high} "
 
